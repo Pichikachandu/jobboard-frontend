@@ -1,0 +1,144 @@
+import React from 'react';
+import PropTypes from 'prop-types';
+import Button from '../ui/Button';
+
+const Card = ({
+  company,
+  logo,
+  position,
+  experience,
+  locationType,
+  salary,
+  postedTime,
+  description,
+  onApply,
+  className = ''
+}) => {
+  return (
+    <div className={`bg-white rounded-[20px] shadow-[0px_4px_12px_rgba(0,0,0,0.05)] p-4 w-full h-[330px]  
+   
+ ${className}`}>
+      {/* Top: Logo & Posted Time */}
+      <div className="flex justify-between items-start">
+        <div className="w-[82px] h-[82px] rounded-[12px] bg-[#f4f4f4] flex items-center justify-center shadow-sm">
+          <img src={logo} alt={company} className="w-[65px] h-[65px] object-contain" />
+        </div>
+
+        <div className="bg-[#B0D9FF] px-3 py-[4px] rounded-[8px]">
+          <span style={{
+            color: '#000000',
+            fontFamily: 'Satoshi',
+            fontWeight: 500,
+            fontSize: '14px',
+            lineHeight: '100%',
+            letterSpacing: '0%',
+            textAlign: 'center',
+            display: 'inline-block'
+          }}>
+            {postedTime}
+          </span>
+        </div>
+      </div>
+
+      {/* Position */}
+      <h3 style={{
+        fontFamily: 'Satoshi',
+        fontWeight: 700,
+        fontSize: '20px',
+        lineHeight: '100%',
+        letterSpacing: '0%',
+        textAlign: 'left',
+        color: '#000000',
+        marginTop: '1rem',
+        marginBottom: '0.5rem'
+      }}>
+        {position}
+      </h3>
+
+      {/* Tags: Experience | Onsite | Salary */}
+      <div className="flex items-center justify-start mt-4 gap-x-4 flex-wrap">
+        <div className="flex items-center gap-1" style={{
+          fontFamily: 'Satoshi',
+          fontWeight: 500,
+          fontSize: '16px',
+          lineHeight: '100%',
+          letterSpacing: '0%',
+          color: '#5A5A5A',
+          textAlign: 'center'
+        }}>
+          <img src="/images/img_frame_48102935.svg" className="w-[14px] h-[14px]" alt="Exp" />
+          {experience}
+        </div>
+        <div className="flex items-center gap-1" style={{
+          fontFamily: 'Satoshi',
+          fontWeight: 500,
+          fontSize: '16px',
+          lineHeight: '100%',
+          letterSpacing: '0%',
+          color: '#5A5A5A',
+          textAlign: 'center'
+        }}>
+          <img src="/images/img_frame_48102937.svg" className="w-[14px] h-[14px]" alt="Location" />
+          {locationType}
+        </div>
+        <div className="flex items-center gap-1" style={{
+          fontFamily: 'Satoshi',
+          fontWeight: 500,
+          fontSize: '16px',
+          lineHeight: '100%',
+          letterSpacing: '0%',
+          color: '#5A5A5A',
+          textAlign: 'center'
+        }}>
+          <img src="/images/img_frame_48102939.svg" className="w-[14px] h-[14px]" alt="Salary" />
+          {salary}
+        </div>
+      </div>
+
+      {/* Description */}
+      <ul className="mt-4 space-y-1 list-disc list-inside" style={{
+        fontFamily: 'Satoshi',
+        fontWeight: 500,
+        fontSize: '14px',
+        lineHeight: '100%',
+        letterSpacing: '0%',
+        color: '#555555'
+      }}>
+        {description.split('\n').map((line, i) => (
+          <li key={i} style={{
+            marginBottom: '4px',
+            paddingLeft: '0.5rem',
+            textIndent: '-1rem',
+            marginLeft: '1rem'
+          }}>
+            {line.trim()}
+          </li>
+        ))}
+      </ul>
+
+      {/* Apply Button */}
+      <Button
+        variant="primary"
+        className="mt-4 w-full h-[44px] rounded-[10px] text-[14px] font-semibold bg-[#0099ff] text-white"
+        onClick={onApply}
+      >
+        Apply Now
+      </Button>
+    </div>
+  );
+};
+
+Card.propTypes = {
+  company: PropTypes.string.isRequired,
+  logo: PropTypes.string.isRequired,
+  position: PropTypes.string.isRequired,
+  experience: PropTypes.string.isRequired,
+  locationType: PropTypes.string.isRequired,
+  salary: PropTypes.string.isRequired,
+  postedTime: PropTypes.string.isRequired,
+  description: PropTypes.string.isRequired,
+  onApply: PropTypes.func.isRequired,
+  className: PropTypes.string,
+};
+
+export default Card;

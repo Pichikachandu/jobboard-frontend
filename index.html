@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <link rel="icon" type="image/x-icon" href="./public/images/img_clip_path_group.png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="viewport" content="width=device-width, initial-scale=0.95, maximum-scale=0.95, user-scalable=0" />
+  <script>
+    // Function to set zoom level to 95%
+    function setZoom() {
+      document.body.style.zoom = '95%';
+      // For Firefox
+      document.body.style.MozTransform = 'scale(0.95)';
+      document.body.style.MozTransformOrigin = '0 0';
+      // For IE/Edge
+      document.body.style.msZoom = '0.95';
+      // For Safari/Chrome
+      document.body.style.zoom = '95%';
+    }
+    // Set zoom when page loads
+    window.addEventListener('load', setZoom);
+    // Also set zoom when DOM is fully loaded as a fallback
+    document.addEventListener('DOMContentLoaded', setZoom);
+  </script>
+  <meta name="description" content="A React application built with Vite and Tailwind CSS" />
+  <meta name="theme-color" content="#646cff" />
+  <meta name="robots" content="index, follow" />
+  <title>CyberMind Works | Careers</title>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+  <!-- <script id="dhws-errorTracker" src="/dhws-error-tracker.js"></script>
+  <script id="dhws-elementInspector" src="/dhws-web-inspector.js"></script> -->
+</body>
+
+</html>
