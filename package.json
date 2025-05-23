@@ -8,11 +8,10 @@
     "node": ">=16.0.0"
   },
   "scripts": {
+    "dev": "vite",
     "build": "vite build --outDir dist",
-    "vercel-build": "vite build --outDir dist",
-    "start": "vite",
     "preview": "vite preview",
-    "serve": "vite preview",
+    "vercel-build": "vite build --outDir dist",
     "format": "prettier --write \"src/**/*.{js,jsx,css,md,json}\""
   },
   "dependencies": {
