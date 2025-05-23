@@ -11,7 +11,7 @@
     "dev": "vite",
     "build": "vite build --outDir dist",
     "preview": "vite preview",
-    "vercel-build": "node vercel-build.js",
+    "vercel-build": "vite build --outDir dist",
     "format": "prettier --write \"src/**/*.{js,jsx,css,md,json}\""
   },
   "dependencies": {

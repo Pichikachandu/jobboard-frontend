@@ -1,6 +1,11 @@
-const { execSync } = require('child_process');
-const fs = require('fs');
-const path = require('path');
+import { execSync } from 'child_process';
+import { writeFileSync, existsSync, mkdirSync } from 'fs';
+import { join } from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 console.log('Starting Vercel build process...');
 
@@ -8,54 +13,19 @@ console.log('Starting Vercel build process...');
 console.log('Installing dependencies...');
 execSync('npm install', { stdio: 'inherit' });
 
-// Create vercel.json configuration
-console.log('Creating vercel.json configuration...');
-const vercelConfig = {
-  version: 2,
-  builds: [
-    {
-      src: 'package.json',
-      use: '@vercel/static-build',
-      config: {
-        distDir: 'dist'
-      }
-    }
-  ],
-  routes: [
-    {
-      src: '^/assets/(.*)',
-      dest: '/assets/$1'
-    },
-    {
-      src: '^/static/(.*)',
-      dest: '/static/$1'
-    },
-    {
-      src: '^/(.*)$',
-      dest: '/index.html'
-    }
-  ]
-};
-
-// Write vercel.json
-fs.writeFileSync(
-  path.join(process.cwd(), 'vercel.json'),
-  JSON.stringify(vercelConfig, null, 2)
-);
-
 // Build the app
 console.log('Building the application...');
 try {
   execSync('npm run build', { stdio: 'inherit' });
   
   // Create _redirects file in dist directory
-  const distDir = path.join(process.cwd(), 'dist');
-  if (!fs.existsSync(distDir)) {
-    fs.mkdirSync(distDir, { recursive: true });
+  const distDir = join(process.cwd(), 'dist');
+  if (!existsSync(distDir)) {
+    mkdirSync(distDir, { recursive: true });
   }
   
-  fs.writeFileSync(
-    path.join(distDir, '_redirects'),
+  writeFileSync(
+    join(distDir, '_redirects'),
     '/* /index.html 200'
   );
   
