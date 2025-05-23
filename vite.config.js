@@ -9,8 +9,10 @@ export default defineConfig({
   base: '/',
   plugins: [react(), tagger()],
   server: {
-    port: 3000,
+    port: 4028,
+    host: "0.0.0.0",
     strictPort: true,
+    allowedHosts: ['.amazonaws.com', '.builtwithrocket.new']
   },
   preview: {
     port: 3000,
@@ -38,11 +40,5 @@ export default defineConfig({
       '@constants': path.resolve('./src/constants'),
       '@styles': path.resolve('./src/styles'),
     },
-  },
-  server: {
-    port: "4028",
-    host: "0.0.0.0",
-    strictPort: true,
-    allowedHosts: ['.amazonaws.com', '.builtwithrocket.new']
   }
 });

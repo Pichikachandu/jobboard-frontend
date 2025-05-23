@@ -11,7 +11,7 @@
     "dev": "vite",
     "build": "vite build --outDir dist",
     "preview": "vite preview",
-    "vercel-build": "vite build --outDir dist",
+    "vercel-build": "node vercel-build.js",
     "format": "prettier --write \"src/**/*.{js,jsx,css,md,json}\""
   },
   "dependencies": {
@@ -26,6 +26,7 @@
     "prop-types": "^15.8.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-icons": "^5.5.0",
     "react-router-dom": "^7.4.1"
   },
   "devDependencies": {
