@@ -9,21 +9,14 @@
       }
     }
   ],
-  "routes": [
-    {
-      "src": "^/assets/(.*)",
-      "dest": "/assets/$1"
-    },
-    {
-      "src": "^/static/(.*)",
-      "dest": "/static/$1"
-    },
-    {
-      "src": "^/.*",
-      "dest": "/index.html"
-    }
-  ],
   "rewrites": [
-    { "source": "/:path*", "destination": "/index.html" }
+    {
+      "source": "/api/:path*",
+      "destination": "https://jobboard-backend-1swz.onrender.com/api/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
   ]
 }
