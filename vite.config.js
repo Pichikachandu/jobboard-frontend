@@ -8,10 +8,26 @@ import tagger from "@dhiwise/component-tagger";
 export default defineConfig({
   base: '/',
   plugins: [react(), tagger()],
+  server: {
+    port: 3000,
+    strictPort: true,
+  },
+  preview: {
+    port: 3000,
+    strictPort: true,
+  },
   build: {
     outDir: 'dist',
     sourcemap: true,
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ['react', 'react-dom', 'react-router-dom'],
+          vendor: ['axios', 'react-icons'],
+        },
+      },
+    },
   },
   resolve: {
     alias: {
