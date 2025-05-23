@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: jobboard-backend
+    env: node
+    buildCommand: npm install
+    startCommand: node server.js
+    region: singapore
+    autoDeploy: true
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      - key: MONGODB_URI
+        sync: false  # This will prompt you to enter the value in Render's dashboard
+      - key: PORT
+        value: 10000
+      - key: NODE_ENV
+        value: production

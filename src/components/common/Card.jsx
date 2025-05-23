@@ -56,7 +56,16 @@ const Card = ({
       </h3>
 
       {/* Tags: Experience | Onsite | Salary */}
-      <div className="flex items-center justify-start mt-4 gap-x-4 flex-wrap">
+      <div className="flex items-center justify-start mt-4 gap-x-4 whitespace-nowrap overflow-x-auto pb-2 scrollbar-hide" style={{
+        scrollbarWidth: 'none',  /* Firefox */
+        msOverflowStyle: 'none',  /* IE and Edge */
+      }}>
+        {/* Hide scrollbar for Chrome, Safari and Opera */}
+        <style jsx>{`
+          .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+          }
+        `}</style>
         <div className="flex items-center gap-1" style={{
           fontFamily: 'Satoshi',
           fontWeight: 500,
@@ -96,7 +105,7 @@ const Card = ({
       </div>
 
       {/* Description */}
-      <ul className="mt-4 space-y-1 list-disc list-inside" style={{
+      <ul className="mt-2 space-y-1 list-disc list-inside" style={{ // Reduced top margin
         fontFamily: 'Satoshi',
         fontWeight: 500,
         fontSize: '14px',

@@ -107,42 +107,62 @@ const CreateJobForm = ({ onClose }) => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Format the job data to match the expected structure
-    const newJob = {
-      companyName: formData.companyName,
-      jobTitle: formData.jobTitle,
-      location: formData.location || 'Remote',
-      experience: formData.experience || '1-3 yr Exp',
-      minSalary: formData.minSalary || '12',
-      jobDescription: formData.jobDescription || 'No description provided.',
-      jobType: formData.jobType || 'Full Time',
-      applicationDeadline: formData.applicationDeadline || 'Not specified'
-    };
+    try {
+      // Format the salary
+      const formattedMinSalary = formData.minSalary ? `$${formData.minSalary.replace(/,/g, '')}` : '';
+      const formattedMaxSalary = formData.maxSalary ? `$${formData.maxSalary.replace(/,/g, '')}` : '';
+      const salary = formattedMinSalary && formattedMaxSalary 
+        ? `${formattedMinSalary}-${formattedMaxSalary}` 
+        : formattedMinSalary || formattedMaxSalary || 'Competitive salary';
 
-    // Add the job using context
-    addJob(newJob);
-    
-    // Reset the form
-    setFormData({
-      jobTitle: '',
-      companyName: '',
-      location: '',
-      jobType: 'fulltime',
-      minSalary: '',
-      maxSalary: '',
-      jobDescription: '',
-      applicationDeadline: ''
-    });
-    
-    // Close the form
-    if (onClose) {
-      onClose();
-    } else {
-      // If no onClose prop (e.g., navigated directly to this page), redirect to jobs page
-      navigate('/jobs');
+      // Format the job data to match the backend model
+      const newJob = {
+        company: formData.companyName,
+        position: formData.jobTitle, // Backend expects 'position' not 'jobTitle'
+        locationType: formData.location || 'Remote',
+        experience: formData.experience || '1-3 yr Exp',
+        salary: salary,
+        description: formData.jobDescription || 'No description provided.',
+        jobType: formData.jobType.charAt(0).toUpperCase() + formData.jobType.slice(1), // Capitalize first letter
+        logo: '/images/default-company.png'
+      };
+
+      console.log('Submitting job:', newJob);
+      
+      // Add the job using context
+      const result = await addJob(newJob);
+      
+      if (result.success) {
+        // Show success message
+        alert('Job posted successfully!');
+        
+        // Reset the form
+        setFormData({
+          jobTitle: '',
+          companyName: '',
+          location: '',
+          jobType: 'fulltime',
+          minSalary: '',
+          maxSalary: '',
+          jobDescription: '',
+          applicationDeadline: ''
+        });
+        
+        // Close the form and navigate back to job listings
+        if (onClose) {
+          onClose();
+        } else {
+          navigate('/jobs');
+        }
+      } else {
+        throw new Error(result.error || 'Failed to post job');
+      }
+    } catch (error) {
+      console.error('Error submitting job:', error);
+      alert(error.message || 'Failed to post job. Please check the form and try again.');
     }
   };
 

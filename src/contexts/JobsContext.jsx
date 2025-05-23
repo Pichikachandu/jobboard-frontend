@@ -1,8 +1,5 @@
-// src/contexts/JobsContext.jsx
-import { createContext, useState, useEffect, useContext } from 'react';
+import { createContext, useState, useContext, useCallback, useEffect, useMemo } from 'react';
 import axios from 'axios';
-
-const API_URL = 'http://localhost:5000/api/jobs';
 
 const defaultJobs = [
   {
@@ -14,7 +11,8 @@ const defaultJobs = [
     locationType: 'Onsite',
     salary: '12LPA',
     postedTime: '24h Ago',
-    description: 'A user-friendly interface lets you browse stunning photos and videos\nFilter destinations based on interests and travel style, and create personalized'
+    description: 'A user-friendly interface lets you browse stunning photos and videos\nFilter destinations based on interests and travel style, and create personalized',
+    isDefault: true
   },
   {
     id: 2,
@@ -25,7 +23,8 @@ const defaultJobs = [
     locationType: 'Onsite',
     salary: '12LPA',
     postedTime: '24h Ago',
-    description: 'A user-friendly interface lets you browse stunning photos and videos\nFilter destinations based on interests and travel style, and create personalized'
+    description: 'A user-friendly interface lets you browse stunning photos and videos\nFilter destinations based on interests and travel style, and create personalized',
+    isDefault: true
   },
   {
     id: 3,
@@ -36,7 +35,8 @@ const defaultJobs = [
     locationType: 'Onsite',
     salary: '12LPA',
     postedTime: '24h Ago',
-    description: 'A user-friendly interface lets you browse stunning photos and videos\nFilter destinations based on interests and travel style, and create personalized'
+    description: 'A user-friendly interface lets you browse stunning photos and videos\nFilter destinations based on interests and travel style, and create personalized',
+    isDefault: true
   },
   {
     id: 4,
@@ -47,7 +47,8 @@ const defaultJobs = [
     locationType: 'Onsite',
     salary: '12LPA',
     postedTime: '24h Ago',
-    description: 'A user-friendly interface lets you browse stunning photos and videos\nFilter destinations based on interests and travel style, and create personalized'
+    description: 'A user-friendly interface lets you browse stunning photos and videos\nFilter destinations based on interests and travel style, and create personalized',
+    isDefault: true
   },
   {
     id: 5,
@@ -58,7 +59,8 @@ const defaultJobs = [
     locationType: 'Onsite',
     salary: '12LPA',
     postedTime: '24h Ago',
-    description: 'A user-friendly interface lets you browse stunning photos and videos\nFilter destinations based on interests and travel style, and create personalized'
+    description: 'A user-friendly interface lets you browse stunning photos and videos\nFilter destinations based on interests and travel style, and create personalized',
+    isDefault: true
   },
   {
     id: 6,
@@ -69,7 +71,8 @@ const defaultJobs = [
     locationType: 'Onsite',
     salary: '12LPA',
     postedTime: '24h Ago',
-    description: 'A user-friendly interface lets you browse stunning photos and videos\nFilter destinations based on interests and travel style, and create personalized'
+    description: 'A user-friendly interface lets you browse stunning photos and videos\nFilter destinations based on interests and travel style, and create personalized',
+    isDefault: true
   },
   {
     id: 7,
@@ -80,7 +83,8 @@ const defaultJobs = [
     locationType: 'Onsite',
     salary: '12LPA',
     postedTime: '24h Ago',
-    description: 'A user-friendly interface lets you browse stunning photos and videos\nFilter destinations based on interests and travel style, and create personalized'
+    description: 'A user-friendly interface lets you browse stunning photos and videos\nFilter destinations based on interests and travel style, and create personalized',
+    isDefault: true
   },
   {
     id: 8,
@@ -91,119 +95,245 @@ const defaultJobs = [
     locationType: 'Onsite',
     salary: '12LPA',
     postedTime: '24h Ago',
-    description: 'A user-friendly interface lets you browse stunning photos and videos\nFilter destinations based on interests and travel style, and create personalized'
+    description: 'A user-friendly interface lets you browse stunning photos and videos\nFilter destinations based on interests and travel style, and create personalized',
+    isDefault: true
   }
 ];
+
+// Default filter values
+const DEFAULT_FILTERS = {
+  search: '',
+  location: 'All Locations',
+  jobType: 'All Types',
+  experience: 'All Experience',
+  minSalary: '',
+  maxSalary: '',
+  company: '',
+  sortBy: 'newest',
+  page: 1,
+  limit: 10
+};
+
+const API_URL = 'https://jobboard-backend-1swz.onrender.com/api/jobs';
 
 const JobsContext = createContext();
 
 export const JobsProvider = ({ children }) => {
   const [jobs, setJobs] = useState([]);
+  const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [totalJobs, setTotalJobs] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
-  // Format job data to match our frontend structure
-  const formatJob = (job) => {
-    if (!job) return null;
-    return {
-      ...job,
-      id: job._id || job.id, // Handle both MongoDB _id and local id
-      logo: job.logo || '/images/default-company.png',
-      postedTime: job.createdAt ? 'Just now' : (job.postedTime || '24h Ago'),
-      experience: job.experience || '1-3 yr Exp',
-      locationType: job.locationType || job.location || 'Onsite',
-      position: job.jobTitle || job.position,
-      company: job.companyName || job.company,
-      salary: job.salaryRange || job.salary || '12LPA',
-      description: (job.jobDescription || job.description || 'No description provided')
-        .split('\n')
-        .slice(0, 2)
-        .join('\n'),
-    };
-  };
+  // Combine default jobs with fetched jobs
+  const [dbJobs, setDbJobs] = useState([]);
 
-  // Fetch jobs from API
-  const fetchJobs = async () => {
+  // Fetch jobs from the backend with filters
+  const fetchJobs = useCallback(async (customFilters = {}) => {
     try {
       setLoading(true);
-      const response = await axios.get(API_URL);
+      const mergedFilters = { ...filters, ...customFilters };
       
-      // Format API jobs and combine with default jobs
-      const apiJobs = response.data.map(formatJob).filter(Boolean);
-      const allJobs = [...apiJobs, ...defaultJobs];
+      // Only fetch from the database, we'll combine with default jobs later
+      const response = await axios.get(API_URL, { params: mergedFilters });
       
-      // Remove duplicates by ID
-      const uniqueJobs = allJobs.filter(
-        (job, index, self) => 
-          index === self.findIndex((j) => 
-            (j.id && j.id === job.id) || 
-            (j._id && j._id === job._id)
-          )
-      );
+      // Save database jobs to state
+      setDbJobs(response.data);
       
-      setJobs(uniqueJobs);
+      // Combine default jobs with database jobs
+      const allJobs = [...defaultJobs, ...response.data];
+      
+      setJobs(allJobs);
+      setTotalJobs(allJobs.length);
+      setTotalPages(Math.ceil(allJobs.length / (mergedFilters.limit || 10)));
+      setError(null);
+      return allJobs;
     } catch (err) {
       console.error('Error fetching jobs:', err);
-      setError(err.message);
-      // Fallback to default jobs if API fails
-      setJobs(defaultJobs.map(job => formatJob(job)));
+      // If there's an error, just show default jobs
+      setJobs(defaultJobs);
+      setTotalJobs(defaultJobs.length);
+      setTotalPages(1);
+      setError('Failed to fetch jobs. Showing default job listings.');
+      return defaultJobs;
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
 
-  useEffect(() => {
-    fetchJobs();
-  }, []);
-
-  // Add new job
+  // Add a new job
   const addJob = async (jobData) => {
-    try {
-      // Transform the job data to match the backend model
-      const jobToSave = {
-        company: jobData.companyName || jobData.company,
-        logo: jobData.logo || '/images/default-company.png',
-        position: jobData.jobTitle || jobData.position,
-        experience: jobData.experience || '1-3 yr Exp',
-        locationType: jobData.location || 'Onsite',
-        salary: jobData.salary || '12LPA',
-        description: jobData.jobDescription || jobData.description || 'No description provided',
-        jobType: jobData.jobType || 'Full Time',
-        applicationDeadline: jobData.applicationDeadline || 'Not specified'
-      };
+    // Create a temporary ID for optimistic UI update
+    const tempId = `temp-${Date.now()}`;
+    const newJob = {
+      ...jobData,
+      _id: tempId,
+      postedTime: 'Just now',
+      createdAt: new Date().toISOString(),
+      isDefault: false
+    };
 
-      console.log('Sending job data:', jobToSave);
+    // Optimistically update the UI
+    setDbJobs(prevDbJobs => [newJob, ...prevDbJobs]);
+    setJobs(prevJobs => [newJob, ...prevJobs]);
+    setTotalJobs(prev => prev + 1);
+    
+    try {
+      // Make the actual API call
+      const response = await axios.post(API_URL, newJob);
       
-      const response = await axios.post(API_URL, jobToSave);
-      const newJob = formatJob(response.data);
+      // Update with the actual data from the server
+      setDbJobs(prevDbJobs => 
+        [response.data, ...prevDbJobs.filter(job => job._id !== tempId)]
+      );
+      setJobs(prevJobs => 
+        [response.data, ...prevJobs.filter(job => job._id !== tempId)]
+      );
       
-      // Add the new job to the beginning of the list
-      setJobs(prevJobs => {
-        // Filter out any job with the same ID to prevent duplicates
-        const filteredJobs = prevJobs.filter(job => 
-          job.id !== newJob.id && 
-          (!job._id || job._id !== newJob._id)
-        );
-        return [newJob, ...filteredJobs];
-      });
-      
-      return newJob;
+      return { success: true, data: response.data };
     } catch (err) {
       console.error('Error adding job:', err);
-      const errorMessage = err.response?.data?.message || err.message;
-      setError(errorMessage);
-      throw new Error(errorMessage);
+      // Revert on error
+      setDbJobs(prevDbJobs => prevDbJobs.filter(job => job._id !== tempId));
+      setJobs(prevJobs => prevJobs.filter(job => job._id !== tempId));
+      setTotalJobs(prev => Math.max(0, prev - 1));
+      
+      return { 
+        success: false, 
+        error: err.response?.data?.message || 'Failed to add job. Please try again.' 
+      };
     }
   };
 
+  // Update a job
+  const updateJob = async (id, jobData) => {
+    try {
+      const response = await axios.patch(`${API_URL}/${id}`, jobData);
+      
+      // Update the database jobs list and combine with default jobs
+      setDbJobs(prevDbJobs => 
+        prevDbJobs.map(job => job._id === id ? response.data : job)
+      );
+      
+      // Update the combined jobs list
+      setJobs(prevJobs => 
+        prevJobs.map(job => 
+          job._id === id ? response.data : 
+          job.id === id ? response.data : job
+        )
+      );
+      
+      return { success: true, data: response.data };
+    } catch (err) {
+      console.error('Error updating job:', err);
+      return { 
+        success: false, 
+        error: err.response?.data?.message || 'Failed to update job. Please try again.' 
+      };
+    }
+  };
+
+  // Delete a job
+  const deleteJob = async (id) => {
+    try {
+      // Only try to delete from database if it's not a default job
+      const isDefaultJob = defaultJobs.some(job => job.id === id);
+      
+      if (!isDefaultJob) {
+        await axios.delete(`${API_URL}/${id}`);
+        setDbJobs(prevDbJobs => prevDbJobs.filter(job => job._id !== id));
+      }
+      
+      // Remove from the combined jobs list
+      setJobs(prevJobs => prevJobs.filter(job => 
+        job._id !== id && job.id !== id
+      ));
+      
+      setTotalJobs(prev => prev - 1);
+      return { success: true };
+    } catch (err) {
+      console.error('Error deleting job:', err);
+      return { 
+        success: false, 
+        error: err.response?.data?.message || 'Failed to delete job. Please try again.' 
+      };
+    }
+  };
+
+  // Format job data to match our frontend structure
+  const formatJob = useCallback((job) => {
+    if (!job) return null;
+    
+    return {
+      id: job._id,
+      company: job.company,
+      logo: job.logo || '/images/default-company.png',
+      position: job.position,
+      experience: job.experience || '1-3 yr Exp',
+      locationType: job.locationType || 'Remote',
+      salary: job.salary || 'Competitive salary',
+      postedTime: job.postedTime || 'Recently',
+      description: job.description || 'No description available',
+      jobType: job.jobType || 'Full-time'
+    };
+  }, []);
+
+  // Update filters and fetch jobs
+  const updateFilters = useCallback((newFilters) => {
+    const updatedFilters = {
+      ...filters,
+      ...newFilters,
+      page: newFilters.resetPage ? 1 : filters.page
+    };
+    setFilters(updatedFilters);
+    fetchJobs(updatedFilters);
+  }, [filters, fetchJobs]);
+
+  // Handle pagination
+  const handlePageChange = useCallback((newPage) => {
+    fetchJobs({ ...filters, page: newPage });
+  }, [fetchJobs, filters]);
+
+  // Apply for a job
+  const applyForJob = useCallback(async (jobId) => {
+    try {
+      // In a real app, this would make an API call to apply for the job
+      console.log(`Applied for job ${jobId}`);
+      return { success: true };
+    } catch (err) {
+      console.error('Error applying for job:', err);
+      return { 
+        success: false, 
+        error: err.response?.data?.message || 'Failed to apply for job. Please try again.' 
+      };
+    }
+  }, []);
+
+  // Initial data fetch
+  useEffect(() => {
+    fetchJobs();
+  }, [fetchJobs]);
+
   return (
-    <JobsContext.Provider value={{ 
-      jobs, 
-      loading, 
-      error, 
-      addJob, 
-      fetchJobs 
-    }}>
+    <JobsContext.Provider
+      value={{
+        jobs,
+        loading,
+        error,
+        filters,
+        totalJobs,
+        totalPages,
+        fetchJobs,
+        addJob,
+        updateJob,
+        deleteJob,
+        formatJob,
+        updateFilters,
+        handlePageChange,
+        applyForJob
+      }}
+    >
       {children}
     </JobsContext.Provider>
   );
@@ -211,8 +341,10 @@ export const JobsProvider = ({ children }) => {
 
 export const useJobs = () => {
   const context = useContext(JobsContext);
-  if (!context) {
+  if (context === undefined) {
     throw new Error('useJobs must be used within a JobsProvider');
   }
   return context;
 };
+
+export default JobsContext;
