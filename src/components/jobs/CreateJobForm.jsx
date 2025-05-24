@@ -111,6 +111,11 @@ const CreateJobForm = ({ onClose }) => {
     e.preventDefault();
     
     try {
+      // Basic validation
+      if (!formData.jobTitle.trim() || !formData.companyName.trim()) {
+        throw new Error('Job title and company name are required');
+      }
+
       // Format the salary
       const formattedMinSalary = formData.minSalary ? `$${formData.minSalary.replace(/,/g, '')}` : '';
       const formattedMaxSalary = formData.maxSalary ? `$${formData.maxSalary.replace(/,/g, '')}` : '';
@@ -120,14 +125,16 @@ const CreateJobForm = ({ onClose }) => {
 
       // Format the job data to match the backend model
       const newJob = {
-        company: formData.companyName,
-        position: formData.jobTitle, // Backend expects 'position' not 'jobTitle'
+        company: formData.companyName.trim(),
+        position: formData.jobTitle.trim(),
         locationType: formData.location || 'Remote',
         experience: formData.experience || '1-3 yr Exp',
         salary: salary,
-        description: formData.jobDescription || 'No description provided.',
-        jobType: formData.jobType.charAt(0).toUpperCase() + formData.jobType.slice(1), // Capitalize first letter
-        logo: '/images/default-company.png'
+        description: formData.jobDescription?.trim() || 'No description provided.',
+        jobType: formData.jobType?.charAt(0).toUpperCase() + formData.jobType?.slice(1) || 'Fulltime',
+        logo: '/images/default-company.png',
+        postedTime: '24h Ago',
+        isDefault: false
       };
 
       console.log('Submitting job:', newJob);
@@ -135,7 +142,7 @@ const CreateJobForm = ({ onClose }) => {
       // Add the job using context
       const result = await addJob(newJob);
       
-      if (result.success) {
+      if (result?.success) {
         // Show success message
         alert('Job posted successfully!');
         
@@ -158,7 +165,7 @@ const CreateJobForm = ({ onClose }) => {
           navigate('/jobs');
         }
       } else {
-        throw new Error(result.error || 'Failed to post job');
+        throw new Error(result?.error || 'Failed to post job');
       }
     } catch (error) {
       console.error('Error submitting job:', error);

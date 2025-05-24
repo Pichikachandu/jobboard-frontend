@@ -32,22 +32,25 @@ const JobSearchPlatform = () => {
   const [jobType, setJobType] = useState('');
   const [salaryRange, setSalaryRange] = useState([50, 80]);
 
-  // Get jobs from context
-  const { jobs } = useJobs();
+  // Get jobs and loading/error states from context
+  const { jobs, loading, error } = useJobs();
 
   // Filter jobs based on search criteria
   const filteredJobs = jobs.filter(job => {
+    if (!job) return false;
+    
     const matchesSearch = searchQuery === '' || 
-      job.position.toLowerCase().includes(searchQuery.toLowerCase());
+      (job.position && job.position.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (job.company && job.company.toLowerCase().includes(searchQuery.toLowerCase()));
     
     const matchesLocation = location === '' || 
-      job.locationType.toLowerCase().includes(location.toLowerCase());
+      (job.locationType && job.locationType.toLowerCase().includes(location.toLowerCase())) ||
+      (job.location && job.location.toLowerCase().includes(location.toLowerCase()));
     
     const matchesJobType = jobType === '' || 
-      job.position.toLowerCase().includes(jobType.toLowerCase());
+      (job.jobType && job.jobType.toLowerCase() === jobType.toLowerCase()) ||
+      (job.position && job.position.toLowerCase().includes(jobType.toLowerCase()));
     
-    // For salary, we would need to parse the salary string
-    // This is a simplified version
     return matchesSearch && matchesLocation && matchesJobType;
   });
 

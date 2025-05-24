@@ -2,22 +2,72 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Card from '../../../components/common/Card';
 
-const JobListings = ({ jobs, onApply }) => {
+const JobListings = ({ jobs = [], onApply, loading, error }) => {
+  // Handle loading state
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
+        <div className="text-center py-12">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          <p className="mt-4 text-gray-600">Loading jobs...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Handle error state
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
+        <div className="bg-red-50 border-l-4 border-red-500 p-4">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-red-700">
+                {error}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Handle no jobs found
+  if (jobs.length === 0) {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
+        <div className="text-center py-12">
+          <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <h3 className="mt-2 text-lg font-medium text-gray-900">No jobs found</h3>
+          <p className="mt-1 text-sm text-gray-500">Try adjusting your search or filter to find what you're looking for.</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Render job listings
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 px-4">
         {jobs.map((job) => (
           <Card
-            key={job.id}
-            company={job.company}
-            logo={job.logo}
-            position={job.position}
-            experience={job.experience}
-            locationType={job.locationType}
-            salary={job.salary}
-            postedTime={job.postedTime}
-            description={job.description}
-            onApply={() => onApply(job.id)}
+            key={job._id || job.id}
+            company={job.company || 'Company Name'}
+            logo={job.logo || '/images/default-logo.png'}
+            position={job.position || 'Job Position'}
+            experience={job.experience || 'Experience not specified'}
+            locationType={job.locationType || job.location || 'Location not specified'}
+            salary={job.salary || 'Salary not specified'}
+            postedTime={job.postedTime || job.createdAt ? new Date(job.createdAt).toLocaleDateString() : 'Date not specified'}
+            description={job.description || 'No description available'}
+            onApply={() => onApply(job._id || job.id)}
             className="h-full"
           />
         ))}
@@ -29,18 +79,29 @@ const JobListings = ({ jobs, onApply }) => {
 JobListings.propTypes = {
   jobs: PropTypes.arrayOf(
     PropTypes.shape({
-      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-      company: PropTypes.string.isRequired,
-      logo: PropTypes.string.isRequired,
-      position: PropTypes.string.isRequired,
-      experience: PropTypes.string.isRequired,
-      locationType: PropTypes.string.isRequired,
-      salary: PropTypes.string.isRequired,
-      postedTime: PropTypes.string.isRequired,
-      description: PropTypes.string.isRequired
+      _id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      company: PropTypes.string,
+      logo: PropTypes.string,
+      position: PropTypes.string,
+      experience: PropTypes.string,
+      locationType: PropTypes.string,
+      location: PropTypes.string,
+      salary: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      postedTime: PropTypes.string,
+      createdAt: PropTypes.string,
+      description: PropTypes.string
     })
-  ).isRequired,
-  onApply: PropTypes.func.isRequired
+  ),
+  onApply: PropTypes.func.isRequired,
+  loading: PropTypes.bool,
+  error: PropTypes.string
+};
+
+JobListings.defaultProps = {
+  jobs: [],
+  loading: false,
+  error: null
 };
 
 export default JobListings;

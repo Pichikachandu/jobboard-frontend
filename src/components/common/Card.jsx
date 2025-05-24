@@ -35,7 +35,9 @@ const Card = ({
               textAlign: 'center',
               display: 'inline-block'
             }}>
-              {postedTime}
+              {postedTime && !isNaN(new Date(postedTime).getTime()) 
+                ? new Date(postedTime).toLocaleDateString() 
+                : '24h Ago'}
             </span>
           </div>
         </div>

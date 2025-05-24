@@ -127,12 +127,37 @@ export const JobsProvider = ({ children }) => {
   // Create a new job
   const createJob = useCallback(async (jobData) => {
     try {
+      // Add default values for required fields
+      const jobToSubmit = {
+        ...jobData,
+        postedTime: '24h Ago',
+        isDefault: false,
+        _id: Date.now().toString(), // Generate a temporary ID
+        id: Date.now(), // For backward compatibility
+      };
+
+      // Optimistically update the UI
+      setJobs(prevJobs => [...prevJobs, jobToSubmit]);
+      
+      // Make the API call
       const response = await axios.post('https://jobboard-backend-1swz.onrender.com/api/jobs', jobData);
-      setJobs(prevJobs => [...prevJobs, response.data]);
-      return response.data;
+      
+      // Update the job with the server response
+      setJobs(prevJobs => 
+        prevJobs.map(job => 
+          job._id === jobToSubmit._id ? { ...response.data, id: response.data._id } : job
+        )
+      );
+      
+      return { success: true, data: response.data };
     } catch (err) {
       console.error('Error creating job:', err);
-      throw err;
+      // Revert the optimistic update on error
+      setJobs(prevJobs => prevJobs.filter(job => job._id !== jobData._id));
+      return { 
+        success: false, 
+        error: err.response?.data?.message || 'Failed to create job. Please try again.' 
+      };
     }
   }, []);
 
