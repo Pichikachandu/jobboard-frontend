@@ -4,8 +4,8 @@ import Card from '../../../components/common/Card';
 
 const JobListings = ({ jobs, onApply }) => {
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 px-4">
         {jobs.map((job) => (
           <Card
             key={job.id}
@@ -18,7 +18,7 @@ const JobListings = ({ jobs, onApply }) => {
             postedTime={job.postedTime}
             description={job.description}
             onApply={() => onApply(job.id)}
-            className="h-[316px]"
+            className="h-full"
           />
         ))}
       </div>
