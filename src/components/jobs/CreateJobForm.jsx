@@ -18,7 +18,7 @@ const SalaryIcon = ({ className = '' }) => (
 );
 
 const CreateJobForm = ({ onClose }) => {
-  const { addJob } = useJobs();
+  const { createJob } = useJobs();
   const navigate = useNavigate();
   
   const [activeField, setActiveField] = useState(null);
@@ -116,15 +116,26 @@ const CreateJobForm = ({ onClose }) => {
         throw new Error('Job title and company name are required');
       }
 
-      // Format the salary
-      const formattedMinSalary = formData.minSalary ? `$${formData.minSalary.replace(/,/g, '')}` : '';
-      const formattedMaxSalary = formData.maxSalary ? `$${formData.maxSalary.replace(/,/g, '')}` : '';
+      // Format the salary in LPA (Lakhs Per Annum)
+      const formatLPA = (value) => {
+        if (!value) return '';
+        const numValue = parseFloat(value);
+        return isNaN(numValue) ? '' : `${numValue}LPA`;
+      };
+
+      const formattedMinSalary = formatLPA(formData.minSalary);
+      const formattedMaxSalary = formatLPA(formData.maxSalary);
+      
       const salary = formattedMinSalary && formattedMaxSalary 
         ? `${formattedMinSalary}-${formattedMaxSalary}` 
         : formattedMinSalary || formattedMaxSalary || 'Competitive salary';
 
+      // Generate a temporary ID for optimistic update
+      const tempId = `temp-${Date.now()}`;
+      
       // Format the job data to match the backend model
       const newJob = {
+        id: tempId, // Temporary ID for optimistic update
         company: formData.companyName.trim(),
         position: formData.jobTitle.trim(),
         locationType: formData.location || 'Remote',
@@ -133,42 +144,48 @@ const CreateJobForm = ({ onClose }) => {
         description: formData.jobDescription?.trim() || 'No description provided.',
         jobType: formData.jobType?.charAt(0).toUpperCase() + formData.jobType?.slice(1) || 'Fulltime',
         logo: '/images/default-company.png',
-        postedTime: '24h Ago',
-        isDefault: false
+        postedTime: 'Just now',
+        isDefault: false,
+        createdAt: new Date().toISOString(),
+        location: formData.location || 'Remote',
+        isOptimistic: true // Mark as optimistic update
       };
 
       console.log('Submitting job:', newJob);
       
-      // Add the job using context
-      const result = await addJob(newJob);
+      // Show success message immediately
+      alert('Job posted successfully!');
       
-      if (result?.success) {
-        // Show success message
-        alert('Job posted successfully!');
-        
-        // Reset the form
-        setFormData({
-          jobTitle: '',
-          companyName: '',
-          location: '',
-          jobType: 'fulltime',
-          minSalary: '',
-          maxSalary: '',
-          jobDescription: '',
-          applicationDeadline: ''
-        });
-        
-        // Close the form and navigate back to job listings
-        if (onClose) {
-          onClose();
-        } else {
-          navigate('/jobs');
-        }
+      // Reset the form
+      setFormData({
+        jobTitle: '',
+        companyName: '',
+        location: '',
+        jobType: 'fulltime',
+        minSalary: '',
+        maxSalary: '',
+        jobDescription: '',
+        applicationDeadline: ''
+      });
+      
+      // Close the form and navigate back to job listings
+      if (onClose) {
+        onClose();
       } else {
-        throw new Error(result?.error || 'Failed to post job');
+        navigate('/jobs');
+      }
+      
+      // Add the job using context (this will update the UI immediately)
+      const result = await createJob(newJob);
+      console.log('Add job result:', result);
+      
+      if (!result || !result.success) {
+        const errorMessage = result?.error || 'Failed to post job';
+        console.error('Job submission failed:', errorMessage);
+        // You could show a toast or notification here to inform the user
       }
     } catch (error) {
-      console.error('Error submitting job:', error);
+      console.error('Error in handleSubmit:', error);
       alert(error.message || 'Failed to post job. Please check the form and try again.');
     }
   };

@@ -1,6 +1,16 @@
 import { createContext, useState, useContext, useCallback, useEffect, useMemo } from 'react';
 import axios from 'axios';
 
+const API_BASE_URL = 'https://jobboard-backend-1swz.onrender.com/api';
+
+// Create an axios instance with base URL
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
 const defaultJobs = [
   {
     id: 1,
@@ -111,14 +121,51 @@ export const JobsProvider = ({ children }) => {
   const fetchJobs = useCallback(async () => {
     setLoading(true);
     setError(null);
+    
     try {
-      const response = await axios.get('https://jobboard-backend-1swz.onrender.com/api/jobs');
-      setJobs([...defaultJobs, ...response.data]);
+      console.log('Fetching jobs from API...');
+      const response = await api.get('/jobs');
+      console.log('API response:', response);
+      
+      if (!response.data) {
+        throw new Error('No data received from server');
+      }
+      
+      // Transform the API jobs data
+      const apiJobs = response.data.map(job => {
+        const isRecent = job.createdAt && 
+          (new Date() - new Date(job.createdAt)) < 5 * 60 * 1000; // 5 minutes
+        
+        return {
+          ...job,
+          id: job._id || job.id, // Handle both _id and id
+          postedTime: isRecent ? 'Just now' : (job.postedTime || '24h Ago'),
+          isDefault: false,
+          locationType: job.locationType || job.location || 'Remote',
+          logo: job.logo || '/images/default-company.png'
+        };
+      });
+      
+      // Combine with default jobs, ensuring no duplicates
+      const existingIds = new Set(apiJobs.map(job => job.id));
+      const uniqueDefaultJobs = defaultJobs.filter(job => !existingIds.has(job.id));
+      const allJobs = [...apiJobs, ...uniqueDefaultJobs];
+      
+      console.log('Fetched jobs:', allJobs);
+      setJobs(allJobs);
+      return allJobs;
+      
     } catch (err) {
-      console.error('Error fetching jobs:', err);
+      console.error('Error fetching jobs:', {
+        error: err,
+        response: err.response,
+        message: err.message
+      });
+      
+      // Fallback to default jobs if API fails
       setError('Failed to fetch jobs. Using default data.');
-      // Keep using default jobs if API fails
       setJobs(defaultJobs);
+      return defaultJobs;
     } finally {
       setLoading(false);
     }
@@ -126,68 +173,143 @@ export const JobsProvider = ({ children }) => {
 
   // Create a new job
   const createJob = useCallback(async (jobData) => {
+    const isOptimistic = jobData.isOptimistic;
+    const tempId = jobData.id;
+    
     try {
-      // Add default values for required fields
+      console.log('Creating job with data:', jobData);
+      
+      // Prepare job data for the API
       const jobToSubmit = {
-        ...jobData,
-        postedTime: '24h Ago',
+        company: jobData.company,
+        position: jobData.position,
+        location: jobData.location || 'Remote',
+        experience: jobData.experience || '1-3 yr Exp',
+        salary: jobData.salary,
+        description: jobData.description || 'No description provided.',
+        jobType: jobData.jobType || 'Fulltime',
+        logo: jobData.logo || '/images/default-company.png',
+        postedTime: 'Just now',
         isDefault: false,
-        _id: Date.now().toString(), // Generate a temporary ID
-        id: Date.now(), // For backward compatibility
+        createdAt: jobData.createdAt || new Date().toISOString()
       };
 
-      // Optimistically update the UI
-      setJobs(prevJobs => [...prevJobs, jobToSubmit]);
+      // For optimistic updates, add the job to the list immediately
+      if (isOptimistic) {
+        setJobs(prevJobs => [jobData, ...prevJobs]);
+      }
+
+      console.log('Submitting job to API:', jobToSubmit);
       
       // Make the API call
-      const response = await axios.post('https://jobboard-backend-1swz.onrender.com/api/jobs', jobData);
+      const response = await api.post('/jobs', jobToSubmit);
+      console.log('API response:', response);
       
-      // Update the job with the server response
-      setJobs(prevJobs => 
-        prevJobs.map(job => 
-          job._id === jobToSubmit._id ? { ...response.data, id: response.data._id } : job
-        )
-      );
+      if (!response.data) {
+        throw new Error('No data received from server');
+      }
       
-      return { success: true, data: response.data };
-    } catch (err) {
-      console.error('Error creating job:', err);
-      // Revert the optimistic update on error
-      setJobs(prevJobs => prevJobs.filter(job => job._id !== jobData._id));
-      return { 
-        success: false, 
-        error: err.response?.data?.message || 'Failed to create job. Please try again.' 
+      // Format the response data
+      const newJob = {
+        ...response.data,
+        id: response.data._id || Math.random().toString(36).substr(2, 9),
+        postedTime: 'Just now',
+        isDefault: false,
+        createdAt: response.data.createdAt || new Date().toISOString()
       };
+
+      console.log('Formatted new job:', newJob);
+      
+      // Update the jobs list with the server response
+      if (isOptimistic && tempId) {
+        // Replace the optimistic update with the actual server response
+        setJobs(prevJobs => {
+          const updatedJobs = prevJobs.filter(job => job.id !== tempId);
+          return [newJob, ...updatedJobs];
+        });
+      } else {
+        // If not an optimistic update, just add the new job
+        setJobs(prevJobs => [newJob, ...prevJobs]);
+      }
+      
+      return { 
+        success: true, 
+        data: newJob 
+      };
+    } catch (err) {
+      console.error('Error creating job:', {
+        error: err,
+        response: err.response,
+        message: err.message
+      });
+      
+      // If it was an optimistic update, remove the temporary job
+      if (isOptimistic && tempId) {
+        setJobs(prevJobs => prevJobs.filter(job => job.id !== tempId));
+      }
+      
+      // Re-throw the error to be handled by the component
+      throw new Error(err.response?.data?.message || err.message || 'Failed to create job');
     }
   }, []);
 
   // Update a job
   const updateJob = useCallback(async (id, jobData) => {
     try {
-      const response = await axios.put(`https://jobboard-backend-1swz.onrender.com/api/jobs/${id}`, jobData);
-      setJobs(prevJobs => prevJobs.map(job => job.id === id ? response.data : job));
-      return response.data;
+      const response = await api.put(`/jobs/${id}`, jobData);
+      const updatedJob = {
+        ...response.data,
+        id: response.data._id || id,
+        isDefault: false
+      };
+      
+      setJobs(prevJobs => 
+        prevJobs.map(job => job.id === id ? updatedJob : job)
+      );
+      
+      return { success: true, data: updatedJob };
     } catch (err) {
       console.error('Error updating job:', err);
-      throw err;
+      return { 
+        success: false, 
+        error: err.response?.data?.message || 'Failed to update job.' 
+      };
     }
   }, []);
 
   // Delete a job
   const deleteJob = useCallback(async (id) => {
     try {
-      await axios.delete(`https://jobboard-backend-1swz.onrender.com/api/jobs/${id}`);
+      await api.delete(`/jobs/${id}`);
       setJobs(prevJobs => prevJobs.filter(job => job.id !== id));
-      return true;
+      return { success: true };
     } catch (err) {
       console.error('Error deleting job:', err);
-      throw err;
+      return { 
+        success: false, 
+        error: err.response?.data?.message || 'Failed to delete job.' 
+      };
     }
   }, []);
 
   // Get a single job by ID
-  const getJobById = useCallback((id) => {
-    return jobs.find(job => job.id === id);
+  const getJobById = useCallback(async (id) => {
+    try {
+      // First check if job exists in local state
+      const localJob = jobs.find(job => job.id === id);
+      if (localJob) return localJob;
+      
+      // If not found locally, try to fetch from API
+      const response = await api.get(`/jobs/${id}`);
+      return {
+        ...response.data,
+        id: response.data._id,
+        isDefault: false
+      };
+    } catch (err) {
+      console.error('Error fetching job:', err);
+      return null;
+    }
   }, [jobs]);
 
   // Filter jobs by search query

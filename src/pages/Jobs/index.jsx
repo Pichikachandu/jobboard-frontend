@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useJobs } from '../../contexts/JobsContext';
 import Header from '../../components/common/Header';
@@ -33,26 +33,41 @@ const JobSearchPlatform = () => {
   const [salaryRange, setSalaryRange] = useState([50, 80]);
 
   // Get jobs and loading/error states from context
-  const { jobs, loading, error } = useJobs();
+  const { jobs, loading, error, fetchJobs } = useJobs();
+
+  // Fetch jobs when component mounts
+  useEffect(() => {
+    const loadJobs = async () => {
+      try {
+        await fetchJobs();
+      } catch (err) {
+        console.error('Failed to load jobs:', err);
+      }
+    };
+    
+    loadJobs();
+  }, [fetchJobs]);
 
   // Filter jobs based on search criteria
-  const filteredJobs = jobs.filter(job => {
-    if (!job) return false;
-    
-    const matchesSearch = searchQuery === '' || 
-      (job.position && job.position.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (job.company && job.company.toLowerCase().includes(searchQuery.toLowerCase()));
-    
-    const matchesLocation = location === '' || 
-      (job.locationType && job.locationType.toLowerCase().includes(location.toLowerCase())) ||
-      (job.location && job.location.toLowerCase().includes(location.toLowerCase()));
-    
-    const matchesJobType = jobType === '' || 
-      (job.jobType && job.jobType.toLowerCase() === jobType.toLowerCase()) ||
-      (job.position && job.position.toLowerCase().includes(jobType.toLowerCase()));
-    
-    return matchesSearch && matchesLocation && matchesJobType;
-  });
+  const filteredJobs = useMemo(() => {
+    return jobs.filter(job => {
+      if (!job) return false;
+      
+      const matchesSearch = searchQuery === '' || 
+        (job.position && job.position.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (job.company && job.company.toLowerCase().includes(searchQuery.toLowerCase()));
+      
+      const matchesLocation = location === '' || 
+        (job.locationType && job.locationType.toLowerCase().includes(location.toLowerCase())) ||
+        (job.location && job.location.toLowerCase().includes(location.toLowerCase()));
+      
+      const matchesJobType = jobType === '' || 
+        (job.jobType && job.jobType.toLowerCase() === jobType.toLowerCase()) ||
+        (job.position && job.position.toLowerCase().includes(jobType.toLowerCase()));
+      
+      return matchesSearch && matchesLocation && matchesJobType;
+    });
+  }, [jobs, searchQuery, location, jobType]);
 
   const handleApply = (jobId) => {
     // In a real application, this would navigate to an application page or open a modal
@@ -82,7 +97,9 @@ const JobSearchPlatform = () => {
         
         <JobListings 
           jobs={filteredJobs} 
-          onApply={handleApply} 
+          onApply={handleApply}
+          loading={loading}
+          error={error}
         />
       </main>
     </div>

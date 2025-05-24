@@ -37,8 +37,11 @@ const JobListings = ({ jobs = [], onApply, loading, error }) => {
     );
   }
 
-  // Handle no jobs found
-  if (jobs.length === 0) {
+  // Always show default cards when no jobs are found
+  const displayJobs = jobs.length > 0 ? jobs : [];
+  
+  // If we have no jobs to display (shouldn't happen with default jobs)
+  if (displayJobs.length === 0 && !loading && !error) {
     return (
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="text-center py-12">
@@ -56,21 +59,34 @@ const JobListings = ({ jobs = [], onApply, loading, error }) => {
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 px-4">
-        {jobs.map((job) => (
-          <Card
-            key={job._id || job.id}
-            company={job.company || 'Company Name'}
-            logo={job.logo || '/images/default-logo.png'}
-            position={job.position || 'Job Position'}
-            experience={job.experience || 'Experience not specified'}
-            locationType={job.locationType || job.location || 'Location not specified'}
-            salary={job.salary || 'Salary not specified'}
-            postedTime={job.postedTime || job.createdAt ? new Date(job.createdAt).toLocaleDateString() : 'Date not specified'}
-            description={job.description || 'No description available'}
-            onApply={() => onApply(job._id || job.id)}
-            className="h-full"
-          />
-        ))}
+        {displayJobs.map((job) => {
+          // Format the job data to ensure all required fields are present
+          const isRecent = job.createdAt && 
+            (new Date() - new Date(job.createdAt)) < 5 * 60 * 1000; // 5 minutes in milliseconds
+            
+          const jobData = {
+            ...job,
+            id: job.id || job._id,
+            company: job.company || 'Company Name',
+            logo: job.logo || '/images/default-logo.png',
+            position: job.position || 'Job Position',
+            experience: job.experience || 'Experience not specified',
+            locationType: job.locationType || job.location || 'Location not specified',
+            salary: job.salary || 'Salary not specified',
+            postedTime: isRecent ? 'Just now' : 
+              (job.postedTime || (job.createdAt ? new Date(job.createdAt).toLocaleDateString() : '24h Ago')),
+            description: job.description || 'No description available'
+          };
+          
+          return (
+            <Card
+              key={jobData.id}
+              {...jobData}
+              onApply={onApply ? () => onApply(jobData.id) : undefined}
+              className="h-full"
+            />
+          );
+        })}
       </div>
     </div>
   );
