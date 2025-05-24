@@ -1,6 +1,7 @@
 // /home/ubuntu/app/pichika_s_application/src/pages/job-search-platform/index.jsx
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import InputField from '../../components/ui/InputField';
 import Dropdown from '../../components/ui/Dropdown';
 import Slider from '../../components/ui/Slider';
@@ -147,7 +148,14 @@ const JobSearchPlatform = () => {
 
   const handleApply = (jobId) => {
     console.log(`Applying for job with ID: ${jobId}`);
-    alert(`Application submitted for job ID: ${jobId}`);
+    toast.success(`Application submitted for job ID: ${jobId}`, {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    });
   };
 
   return (

@@ -1,6 +1,8 @@
 import React, { useState, useContext } from 'react';
 import { X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import Dropdown from '../ui/Dropdown';
 import { useJobs } from '../../contexts/JobsContext';
 
@@ -153,8 +155,16 @@ const CreateJobForm = ({ onClose }) => {
 
       console.log('Submitting job:', newJob);
       
-      // Show success message immediately
-      alert('Job posted successfully!');
+      // Show success toast immediately
+      toast.success('Job posted successfully!', {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
       
       // Reset the form
       setFormData({
@@ -186,7 +196,14 @@ const CreateJobForm = ({ onClose }) => {
       }
     } catch (error) {
       console.error('Error in handleSubmit:', error);
-      alert(error.message || 'Failed to post job. Please check the form and try again.');
+      toast.error(error.message || 'Failed to post job. Please check the form and try again.', {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     }
   };
 

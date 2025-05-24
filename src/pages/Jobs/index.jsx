@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useJobs } from '../../contexts/JobsContext';
+import { toast } from 'react-toastify';
 import Header from '../../components/common/Header';
 import SearchFilters from './components/SearchFilters';
 import JobListings from './components/JobListings';
@@ -72,7 +73,14 @@ const JobSearchPlatform = () => {
   const handleApply = (jobId) => {
     // In a real application, this would navigate to an application page or open a modal
     console.log(`Applying for job with ID: ${jobId}`);
-    alert(`Application submitted for job ID: ${jobId}`);
+    toast.success(`Application submitted for job ID: ${jobId}`, {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    });
   };
 
   return (
