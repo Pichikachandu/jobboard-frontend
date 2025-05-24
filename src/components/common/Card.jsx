@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Button from '../ui/Button';
+import { formatRelativeTime, isDefaultJob } from '../../utils/timeUtils';
 
 const Card = ({
   company,
@@ -24,7 +25,7 @@ const Card = ({
             <img src={logo} alt={company} className="w-[65px] h-[65px] object-contain" />
           </div>
 
-          <div className="bg-[#B0D9FF] px-3 py-[4px] rounded-[8px]">
+          <div className="bg-[#B0D9FF] px-3 py-[4px] rounded-[8px] min-w-[80px] text-center">
             <span style={{
               color: '#000000',
               fontFamily: 'Satoshi',
@@ -35,9 +36,9 @@ const Card = ({
               textAlign: 'center',
               display: 'inline-block'
             }}>
-              {postedTime && !isNaN(new Date(postedTime).getTime()) 
-                ? new Date(postedTime).toLocaleDateString() 
-                : '24h Ago'}
+              {isDefaultJob({ isDefault: postedTime === 'Just now' ? false : true, createdAt: postedTime })
+                ? postedTime
+                : formatRelativeTime(postedTime)}
             </span>
           </div>
         </div>

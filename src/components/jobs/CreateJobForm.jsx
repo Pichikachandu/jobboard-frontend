@@ -135,6 +135,9 @@ const CreateJobForm = ({ onClose }) => {
       // Generate a temporary ID for optimistic update
       const tempId = `temp-${Date.now()}`;
       
+      // Get current timestamp for the job
+      const currentTime = new Date().toISOString();
+      
       // Format the job data to match the backend model
       const newJob = {
         id: tempId, // Temporary ID for optimistic update
@@ -146,9 +149,9 @@ const CreateJobForm = ({ onClose }) => {
         description: formData.jobDescription?.trim() || 'No description provided.',
         jobType: formData.jobType?.charAt(0).toUpperCase() + formData.jobType?.slice(1) || 'Fulltime',
         logo: '/images/default-company.png',
-        postedTime: 'Just now',
+        postedTime: currentTime, // Use the actual timestamp
         isDefault: false,
-        createdAt: new Date().toISOString(),
+        createdAt: currentTime,
         location: formData.location || 'Remote',
         isOptimistic: true // Mark as optimistic update
       };
