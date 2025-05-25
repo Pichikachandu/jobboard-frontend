@@ -54,17 +54,20 @@ const JobSearchPlatform = () => {
     return jobs.filter(job => {
       if (!job) return false;
       
+      // Search by job title or company
       const matchesSearch = searchQuery === '' || 
         (job.position && job.position.toLowerCase().includes(searchQuery.toLowerCase())) ||
         (job.company && job.company.toLowerCase().includes(searchQuery.toLowerCase()));
       
+      // Filter by location (case-insensitive)
       const matchesLocation = location === '' || 
-        (job.locationType && job.locationType.toLowerCase().includes(location.toLowerCase())) ||
-        (job.location && job.location.toLowerCase().includes(location.toLowerCase()));
+        (job.locationType && job.locationType.toLowerCase() === location.toLowerCase()) ||
+        (job.location && job.location.toLowerCase() === location.toLowerCase());
       
+      // Filter by job type (case-insensitive and more flexible matching)
       const matchesJobType = jobType === '' || 
         (job.jobType && job.jobType.toLowerCase() === jobType.toLowerCase()) ||
-        (job.position && job.position.toLowerCase().includes(jobType.toLowerCase()));
+        (job.jobType && job.jobType.toLowerCase().includes(jobType.toLowerCase()));
       
       return matchesSearch && matchesLocation && matchesJobType;
     });
