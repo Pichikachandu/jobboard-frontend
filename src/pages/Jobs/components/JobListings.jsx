@@ -71,7 +71,10 @@ const JobListings = ({ jobs = [], onApply, loading, error }) => {
             logo: job.logo || '/images/default-logo.png',
             position: job.position || 'Job Position',
             experience: job.experience || 'Experience not specified',
-            locationType: job.locationType || job.location || 'Location not specified',
+            // Only include locationType if it exists, otherwise include location if it exists
+            ...(job.locationType ? { locationType: job.locationType } : 
+                job.location ? { location: job.location } : {}
+            ),
             salary: job.salary || 'Salary not specified',
             postedTime: isRecent ? 'Just now' : 
               (job.postedTime || (job.createdAt ? new Date(job.createdAt).toLocaleDateString() : '24h Ago')),

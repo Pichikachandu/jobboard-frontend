@@ -81,18 +81,21 @@ const Card = ({
             <img src="/images/img_frame_48102935.svg" className="w-[14px] h-[14px]" alt="Exp" />
             {experience}
           </div>
-          <div className="flex items-center gap-1" style={{
-            fontFamily: 'Satoshi',
-            fontWeight: 500,
-            fontSize: '16px',
-            lineHeight: '100%',
-            letterSpacing: '0%',
-            color: '#5A5A5A',
-            textAlign: 'center'
-          }}>
-            <img src="/images/img_frame_48102937.svg" className="w-[14px] h-[14px]" alt="Location" />
-            {locationType}
-          </div>
+          {locationType || location ? (
+            <div className="flex items-center gap-1" style={{
+              fontFamily: 'Satoshi',
+              fontWeight: 500,
+              fontSize: '16px',
+              lineHeight: '100%',
+              letterSpacing: '0%',
+              color: '#5A5A5A',
+              textAlign: 'center',
+              textTransform: 'capitalize'
+            }}>
+              <img src="/images/img_frame_48102937.svg" className="w-[14px] h-[14px]" alt="Location" />
+              {locationType || (location && location.charAt(0).toUpperCase() + location.slice(1))}
+            </div>
+          ) : null}
           <div className="flex items-center gap-1" style={{
             fontFamily: 'Satoshi',
             fontWeight: 500,
@@ -142,7 +145,8 @@ Card.propTypes = {
   logo: PropTypes.string.isRequired,
   position: PropTypes.string.isRequired,
   experience: PropTypes.string.isRequired,
-  locationType: PropTypes.string.isRequired,
+  locationType: PropTypes.string,
+  location: PropTypes.string.isRequired,
   salary: PropTypes.string.isRequired,
   postedTime: PropTypes.string.isRequired,
   description: PropTypes.string.isRequired,

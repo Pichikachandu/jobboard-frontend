@@ -61,7 +61,7 @@ const CreateJobForm = ({ onClose }) => {
   const [formData, setFormData] = useState({
     jobTitle: '',
     companyName: '',
-    location: '',
+    location: '', // No default location
     jobType: 'fulltime',
     minSalary: '',
     maxSalary: '',
@@ -107,6 +107,15 @@ const CreateJobForm = ({ onClose }) => {
       ...prev,
       [field]: value
     }));
+    
+    // If location changes, update both location and locationType
+    if (field === 'location') {
+      setFormData(prev => ({
+        ...prev,
+        location: value,
+        locationType: value.charAt(0).toUpperCase() + value.slice(1) // Capitalize first letter
+      }));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -143,17 +152,20 @@ const CreateJobForm = ({ onClose }) => {
         id: tempId, // Temporary ID for optimistic update
         company: formData.companyName.trim(),
         position: formData.jobTitle.trim(),
-        locationType: formData.location || 'Remote',
+        // Only include location if it's provided
+        ...(formData.location && {
+          location: formData.location,
+          locationType: formData.location.charAt(0).toUpperCase() + formData.location.slice(1)
+        }),
         experience: formData.experience || '1-3 yr Exp',
         salary: salary,
         description: formData.jobDescription?.trim() || 'No description provided.',
         jobType: formData.jobType?.charAt(0).toUpperCase() + formData.jobType?.slice(1) || 'Fulltime',
         logo: '/images/default-company.png',
-        postedTime: currentTime, // Use the actual timestamp
+        postedTime: currentTime,
         isDefault: false,
         createdAt: currentTime,
-        location: formData.location || 'Remote',
-        isOptimistic: true // Mark as optimistic update
+        isOptimistic: true
       };
 
       console.log('Submitting job:', newJob);

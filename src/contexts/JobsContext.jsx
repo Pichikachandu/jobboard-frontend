@@ -179,11 +179,14 @@ export const JobsProvider = ({ children }) => {
     try {
       console.log('Creating job with data:', jobData);
       
-      // Prepare job data for the API
+      // Prepare job data for the API - preserve all original job data
       const jobToSubmit = {
+        ...jobData, // Spread all original job data first
+        // Only override specific fields if needed
         company: jobData.company,
         position: jobData.position,
-        location: jobData.location || 'Remote',
+        // Don't override location with 'Remote' if it's not provided
+        ...(jobData.location ? { location: jobData.location } : {}),
         experience: jobData.experience || '1-3 yr Exp',
         salary: jobData.salary,
         description: jobData.description || 'No description provided.',
@@ -209,10 +212,11 @@ export const JobsProvider = ({ children }) => {
         throw new Error('No data received from server');
       }
       
-      // Format the response data
+      // Format the response data - preserve all original job data
       const newJob = {
-        ...response.data,
-        id: response.data._id || Math.random().toString(36).substr(2, 9),
+        ...jobData, // Use the original job data first
+        ...response.data, // Then apply the response data
+        id: response.data._id || jobData.id || Math.random().toString(36).substr(2, 9),
         postedTime: 'Just now',
         isDefault: false,
         createdAt: response.data.createdAt || new Date().toISOString()
