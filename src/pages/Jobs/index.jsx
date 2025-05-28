@@ -31,7 +31,8 @@ const JobSearchPlatform = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [location, setLocation] = useState('');
   const [jobType, setJobType] = useState('');
-  const [salaryRange, setSalaryRange] = useState([50, 80]);
+  // Salary range in thousands (e.g., [50, 100] means 50k to 100k per month)
+  const [salaryRange, setSalaryRange] = useState([50, 100]);
 
   // Get jobs and loading/error states from context
   const { jobs, loading, error, fetchJobs } = useJobs();
@@ -48,6 +49,25 @@ const JobSearchPlatform = () => {
     
     loadJobs();
   }, [fetchJobs]);
+
+  // Convert LPA to monthly salary in thousands
+  const lpaToMonthly = (lpa) => {
+    // 1 LPA = 1,00,000 per year = ~8,333 per month = ~8.33k per month
+    return (lpa * 100) / 12; // Convert LPA to thousands per month
+  };
+
+  // Convert monthly salary in thousands to LPA
+  const monthlyToLPA = (monthly) => {
+    // monthly is in thousands, so (monthly * 12) / 100 = LPA
+    return (monthly * 12) / 100;
+  };
+
+  // Extract numeric value from salary string (e.g., '12LPA' -> 12)
+  const extractSalaryValue = (salaryStr) => {
+    if (!salaryStr) return 0;
+    const match = salaryStr.toString().match(/(\d+(\.\d+)?)/);
+    return match ? parseFloat(match[1]) : 0;
+  };
 
   // Filter jobs based on search criteria
   const filteredJobs = useMemo(() => {
@@ -69,9 +89,16 @@ const JobSearchPlatform = () => {
         (job.jobType && job.jobType.toLowerCase() === jobType.toLowerCase()) ||
         (job.jobType && job.jobType.toLowerCase().includes(jobType.toLowerCase()));
       
-      return matchesSearch && matchesLocation && matchesJobType;
+      // Filter by monthly salary range
+      const jobSalaryStr = job.salary || job.maxSalary || job.minSalary || '';
+      const jobSalaryLPA = extractSalaryValue(jobSalaryStr);
+      const jobMonthlySalary = lpaToMonthly(jobSalaryLPA);
+      const [minMonthly, maxMonthly] = salaryRange;
+      const matchesSalary = jobMonthlySalary >= minMonthly && jobMonthlySalary <= maxMonthly;
+      
+      return matchesSearch && matchesLocation && matchesJobType && matchesSalary;
     });
-  }, [jobs, searchQuery, location, jobType]);
+  }, [jobs, searchQuery, location, jobType, salaryRange]);
 
   const handleApply = (jobId) => {
     // In a real application, this would navigate to an application page or open a modal
@@ -87,31 +114,37 @@ const JobSearchPlatform = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#fbfbff]">
-      <Header />
+    <div className="min-h-screen bg-[#f8f9fa]">
+      <div className="bg-white shadow-sm">
+        <div className="w-full max-w-full px-9">
+          <Header />
+          <SearchFilters 
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            location={location}
+            setLocation={setLocation}
+            jobType={jobType}
+            setJobType={setJobType}
+            salaryRange={salaryRange}
+            setSalaryRange={setSalaryRange}
+          />
+        </div>
+      </div>
       
-      <main>
+      <main className="w-full px-0" style={{ paddingTop: '6px' }}>
         {/* Create Job Modal */}
         <Modal isOpen={isCreateJobOpen} onClose={handleCloseCreateJob}>
           <CreateJobForm onClose={handleCloseCreateJob} />
         </Modal>
-        <SearchFilters 
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          location={location}
-          setLocation={setLocation}
-          jobType={jobType}
-          setJobType={setJobType}
-          salaryRange={salaryRange}
-          setSalaryRange={setSalaryRange}
-        />
-        
-        <JobListings 
-          jobs={filteredJobs} 
-          onApply={handleApply}
-          loading={loading}
-          error={error}
-        />
+
+        <div className="w-full" style={{ marginTop: '32px' }}>
+          <JobListings 
+            jobs={filteredJobs} 
+            onApply={handleApply}
+            loading={loading}
+            error={error}
+          />
+        </div>
       </main>
     </div>
   );

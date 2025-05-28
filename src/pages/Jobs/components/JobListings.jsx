@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Card from '../../../components/common/Card';
 
-const JobListings = ({ jobs = [], onApply, loading, error }) => {
+const JobListings = ({ jobs = [], onApply, loading, error, salaryRange }) => {
   // Handle loading state
   if (loading) {
     return (
@@ -43,7 +43,7 @@ const JobListings = ({ jobs = [], onApply, loading, error }) => {
   // If we have no jobs to display (shouldn't happen with default jobs)
   if (displayJobs.length === 0 && !loading && !error) {
     return (
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <div className="container mx-auto px-4 py-8 max-w-2xl">
         <div className="text-center py-12">
           <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -57,13 +57,30 @@ const JobListings = ({ jobs = [], onApply, loading, error }) => {
 
   // Render job listings
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 px-4">
+    <div className="w-full overflow-hidden">
+      <div className="w-full max-w-full mx-auto px-14">
+        <div 
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 w-full"
+          style={{
+            maxWidth: '100%',
+            margin: '0 auto',
+            boxSizing: 'border-box'
+          }}
+        >
         {displayJobs.map((job) => {
           // Format the job data to ensure all required fields are present
           const isRecent = job.createdAt && 
             (new Date() - new Date(job.createdAt)) < 5 * 60 * 1000; // 5 minutes in milliseconds
             
+          // Format salary to show only max value if it's a range
+          const formatSalary = (salary) => {
+            if (!salary) return 'Salary not specified';
+            if (typeof salary === 'string' && salary.includes('-')) {
+              return `₹${salary.split('-').pop().trim()}`;
+            }
+            return salary;
+          };
+
           const jobData = {
             ...job,
             id: job.id || job._id,
@@ -75,7 +92,7 @@ const JobListings = ({ jobs = [], onApply, loading, error }) => {
             ...(job.locationType ? { locationType: job.locationType } : 
                 job.location ? { location: job.location } : {}
             ),
-            salary: job.salary || 'Salary not specified',
+            salary: formatSalary(job.salary) || 'Salary not specified',
             postedTime: isRecent ? 'Just now' : 
               (job.postedTime || (job.createdAt ? new Date(job.createdAt).toLocaleDateString() : '24h Ago')),
             description: job.description || 'No description available'
@@ -86,12 +103,13 @@ const JobListings = ({ jobs = [], onApply, loading, error }) => {
               key={jobData.id}
               {...jobData}
               onApply={onApply ? () => onApply(jobData.id) : undefined}
-              className="h-full"
+              className="w-full shadow-[0px_0px_14px_0px_#D3D3D326] rounded-[12px] bg-white"
             />
           );
         })}
       </div>
     </div>
+  </div>
   );
 };
 
@@ -114,13 +132,15 @@ JobListings.propTypes = {
   ),
   onApply: PropTypes.func.isRequired,
   loading: PropTypes.bool,
-  error: PropTypes.string
+  error: PropTypes.string,
+  salaryRange: PropTypes.object
 };
 
 JobListings.defaultProps = {
   jobs: [],
   loading: false,
-  error: null
+  error: null,
+  salaryRange: {}
 };
 
 export default JobListings;

@@ -94,14 +94,17 @@ const Slider = ({
             key={index}
             className={`
               absolute top-1/2 -translate-y-1/2 -ml-2 w-4 h-4
-              bg-white border-[2px] border-black rounded-full
+              bg-black border-2 border-white rounded-full
+              shadow-sm flex items-center justify-center
               ${disabled ? 'cursor-not-allowed' : 'cursor-grab active:cursor-grabbing'}
               ${thumbClassName}
             `}
             style={{ left: `${getPercentage(values[index])}%` }}
             onMouseDown={(e) => handleMouseDown(index, e)}
             onTouchStart={(e) => handleMouseDown(index, e)}
-          />
+          >
+            <div className="w-1.5 h-1.5 bg-white rounded-full" />
+          </div>
         ))}
       </div>
     </div>

@@ -2,6 +2,9 @@ module.exports = {
   content: ["./src/**/*.{js,ts,jsx,tsx,html,mdx}"],
   darkMode: "class",
   theme: {
+    fontFamily: {
+      sans: ['Satoshi', 'sans-serif'],
+    },
     extend: {
       colors: {
         primary: {

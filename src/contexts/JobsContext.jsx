@@ -18,8 +18,9 @@ const defaultJobs = [
     logo: '/images/img_image_77.png',
     position: 'Full Stack Developer',
     experience: '1-3 yr Exp',
-    locationType: 'Onsite',
-    salary: '12LPA',
+    locationType: 'Mumbai',
+    jobType: 'Fulltime',
+    salary: '6LPA',
     postedTime: '24h Ago',
     description: ' A user-friendly interface lets you browse stunning photos and videos\n• Filter destinations based on interests and travel style, and create personalized',
     isDefault: true
@@ -30,8 +31,9 @@ const defaultJobs = [
     logo: '/images/img_image_79.png',
     position: 'Node Js Developer',
     experience: '1-3 yr Exp',
-    locationType: 'Onsite',
-    salary: '12LPA',
+    locationType: 'Delhi',
+    jobType: 'Fulltime',
+    salary: '6LPA',
     postedTime: '24h Ago',
     description: ' A user-friendly interface lets you browse stunning photos and videos\n• Filter destinations based on interests and travel style, and create personalized',
     isDefault: true
@@ -42,8 +44,9 @@ const defaultJobs = [
     logo: '/images/img_image_78.png',
     position: 'UX/UI Designer',
     experience: '1-3 yr Exp',
-    locationType: 'Onsite',
-    salary: '12LPA',
+    locationType: 'Delhi',
+    jobType: 'Fulltime',
+    salary: '6LPA',
     postedTime: '24h Ago',
     description: 'A user-friendly interface lets you browse stunning photos and videos\n• Filter destinations based on interests and travel style, and create personalized',
     isDefault: true
@@ -54,8 +57,9 @@ const defaultJobs = [
     logo: '/images/img_image_77.png',
     position: 'Full Stack Developer',
     experience: '1-3 yr Exp',
-    locationType: 'Onsite',
-    salary: '12LPA',
+    locationType: 'Mumbai',
+    jobType: 'Parttime',
+    salary: '6LPA',
     postedTime: '24h Ago',
     description: 'A user-friendly interface lets you browse stunning photos and videos\n• Filter destinations based on interests and travel style, and create personalized',
     isDefault: true
@@ -66,8 +70,9 @@ const defaultJobs = [
     logo: '/images/img_image_79.png',
     position: 'Node Js Developer',
     experience: '1-3 yr Exp',
-    locationType: 'Onsite',
-    salary: '12LPA',
+    locationType: 'Mumbai',
+    jobType: 'Fulltime',
+    salary: '6LPA',
     postedTime: '24h Ago',
     description: ' A user-friendly interface lets you browse stunning photos and videos\n• Filter destinations based on interests and travel style, and create personalized',
     isDefault: true
@@ -78,8 +83,9 @@ const defaultJobs = [
     logo: '/images/img_image_78.png',
     position: 'UX/UI Designer',
     experience: '1-3 yr Exp',
-    locationType: 'Onsite',
-    salary: '12LPA',
+    locationType: 'Delhi',
+    jobType: 'Fulltime',
+    salary: '6LPA',
     postedTime: '24h Ago',
     description: 'A user-friendly interface lets you browse stunning photos and videos\n• Filter destinations based on interests and travel style, and create personalized',
     isDefault: true
@@ -90,8 +96,9 @@ const defaultJobs = [
     logo: '/images/img_image_77.png',
     position: 'Full Stack Developer',
     experience: '1-3 yr Exp',
-    locationType: 'Onsite',
-    salary: '12LPA',
+    locationType: 'Hyderabad',
+    jobType: 'Internship',
+    salary: '6LPA',
     postedTime: '24h Ago',
     description: 'A user-friendly interface lets you browse stunning photos and videos\n• Filter destinations based on interests and travel style, and create personalized',
     isDefault: true
@@ -102,8 +109,9 @@ const defaultJobs = [
     logo: '/images/img_image_79.png',
     position: 'Node Js Developer',
     experience: '1-3 yr Exp',
-    locationType: 'Onsite',
-    salary: '12LPA',
+    locationType: 'Bangalore',
+    jobType: 'Fulltime',
+    salary: '6LPA',
     postedTime: '24h Ago',
     description: 'A user-friendly interface lets you browse stunning photos and videos\n• Filter destinations based on interests and travel style, and create personalized',
     isDefault: true
@@ -163,7 +171,7 @@ export const JobsProvider = ({ children }) => {
       });
       
       // Fallback to default jobs if API fails
-      setError('Failed to fetch jobs. Using default data.');
+      setError('Failed to fetch jobs. Please Connect to the Internet.');
       setJobs(defaultJobs);
       return defaultJobs;
     } finally {

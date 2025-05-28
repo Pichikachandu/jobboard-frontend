@@ -72,11 +72,21 @@ const Header = () => {
   };
 
   return (
-    <header className="w-full flex justify-center py-4 bg-transparent"
-    style={{ boxShadow: '0px 0px 20px 0px #7F7F7F26' }}>
-      <div className="w-full max-w-4xl bg-white shadow-lg rounded-full px-4 md:px-8 py-4 flex items-center justify-between relative">
+    <header className="w-full flex justify-center pt-[21px] pb-6" style={{ background: 'transparent' }}>
+      <div 
+        className="flex items-center align-center justify-between relative"
+        style={{
+          width: '65%',
+          height: '80px',
+          borderRadius: '122px',
+          background: '#FFFFFF',
+          border: '1px solid #FCFCFC',
+          boxShadow: '0px 0px 20px 0px #7F7F7F26',
+          padding: '0 40px'
+        }}
+      >
         {/* Logo and Title - Left */}
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-3">
           <Link to="/" className="flex items-center">
             <img 
               src="/images/img_clip_path_group.png" 
@@ -149,14 +159,14 @@ const Header = () => {
                   openCreateJob();
                   setIsMenuOpen(false);
                 }}
-                className="text-white px-6 py-3 w-full max-w-xs font-semibold"
+                className="text-white px-6 py-4 w-full max-w-xs font-semibold"
                 style={{
                   background: 'linear-gradient(180deg, #A128FF 0%, #6100AD 113.79%)',
                   border: 'none',
                   borderRadius: '30px',
                   transition: 'all 0.3s ease',
                   width: '100%',
-                  maxWidth: '300px',
+                  maxWidth: '400px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center'

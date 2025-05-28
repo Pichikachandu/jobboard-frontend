@@ -4,3 +4,26 @@
 body {
   font-family: 'Satoshi', sans-serif;
 }
+
+/* Hide blue focus outlines while maintaining accessibility */
+*:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Add focus-visible for better accessibility */
+*:focus-visible {
+  outline: 2px solid rgba(59, 130, 246, 0.5) !important;
+  outline-offset: 2px !important;
+  border-radius: 0.25rem !important;
+}
+
+/* Remove blue highlight on tap for mobile devices */
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+*:focus {
+  -webkit-tap-highlight-color: transparent;
+}

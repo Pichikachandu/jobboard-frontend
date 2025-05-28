@@ -1,3 +1,4 @@
+
 // /home/ubuntu/app/pichika_s_application/src/pages/job-search-platform/index.jsx
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
@@ -14,7 +15,7 @@ const JobSearchPlatform = () => {
   const [location, setLocation] = useState('');
   const [jobType, setJobType] = useState('');
   const [experienceLevel, setExperienceLevel] = useState('');
-  const [salaryRange, setSalaryRange] = useState([50, 80]);
+  const [salaryRange, setSalaryRange] = useState([50, 80]); // Range in thousands (50k to 80k)
   
   // States for expandable filter sections
   const [expandedFilters, setExpandedFilters] = useState({
@@ -302,9 +303,9 @@ const JobSearchPlatform = () => {
             </div>
             
             {/* Filter Categories */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="flex flex-col md:flex-row bg-white rounded-lg shadow-sm overflow-hidden">
               {/* Location Filter */}
-              <div className="bg-gray-50 rounded-lg p-4">
+              <div className="flex-1 p-4 hover:bg-gray-50 transition-colors duration-200 relative border-r border-gray-200 last:border-r-0">
                 <div className="flex justify-between items-center mb-2 cursor-pointer" onClick={() => toggleFilter('location')}>
                   <h3 className="text-[16px] font-semibold text-gray-800 flex items-center">
                     <svg className="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -336,7 +337,7 @@ const JobSearchPlatform = () => {
               </div>
               
               {/* Job Type Filter */}
-              <div className="bg-gray-50 rounded-lg p-4">
+              <div className="flex-1 p-4 hover:bg-gray-50 transition-colors duration-200 relative border-r border-gray-200 last:border-r-0">
                 <div className="flex justify-between items-center mb-2 cursor-pointer" onClick={() => toggleFilter('jobType')}>
                   <h3 className="text-[16px] font-semibold text-gray-800 flex items-center">
                     <svg className="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -367,7 +368,7 @@ const JobSearchPlatform = () => {
               </div>
               
               {/* Experience Level Filter */}
-              <div className="bg-gray-50 rounded-lg p-4">
+              <div className="flex-1 p-4 hover:bg-gray-50 transition-colors duration-200 relative border-r border-gray-200 last:border-r-0">
                 <div className="flex justify-between items-center mb-2 cursor-pointer" onClick={() => toggleFilter('experience')}>
                   <h3 className="text-[16px] font-semibold text-gray-800 flex items-center">
                     <svg className="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -398,7 +399,7 @@ const JobSearchPlatform = () => {
               </div>
               
               {/* Salary Range Filter */}
-              <div className="bg-gray-50 rounded-lg p-4">
+              <div className="flex-1 p-4 hover:bg-gray-50 transition-colors duration-200">
                 <div className="flex justify-between items-center mb-2 cursor-pointer" onClick={() => toggleFilter('salary')}>
                   <h3 className="text-[16px] font-semibold text-gray-800 flex items-center">
                     <svg className="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

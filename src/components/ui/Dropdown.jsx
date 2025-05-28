@@ -83,7 +83,7 @@ const Dropdown = ({
       >
         <div className="flex items-center">
           {icon && <span className="mr-2">{icon}</span>}
-          <span className={`${!selectedOption ? 'text-gray-500' : ''}`}>
+          <span className={`${!selectedOption ? 'text-[#686868]' : ''}`}>
             {selectedOption ? selectedOption.label : placeholder}
           </span>
         </div>
