@@ -11,7 +11,7 @@ const SearchFilters = ({
   setLocation,
   jobType,
   setJobType,
-  salaryRange = [50, 80],
+  salaryRange = [50, 80],  // monthly thousands
   setSalaryRange
 }) => {
 
@@ -31,14 +31,16 @@ const SearchFilters = ({
     { value: 'internship', label: 'Internship' }
   ];
 
+  // Initialize with 50k-80k range
   const [localSalaryRange, setLocalSalaryRange] = React.useState([50, 80]);
 
+  // Update parent component when local range changes
   React.useEffect(() => {
     setSalaryRange(localSalaryRange);
   }, [localSalaryRange, setSalaryRange]);
 
-  const formatSalary = (value) => `₹${value}k`;
-  const formatSalaryRange = (range) => `${formatSalary(range[0])} - ${formatSalary(range[1])}`;
+  // Format salary value in thousands, e.g. 50k
+  const formatSalary = (value) => `${value}k`;
 
   return (
     <div className="w-full bg-white" style={{ width: '100%', margin: '0', padding: '0' }}>
@@ -170,11 +172,11 @@ const SearchFilters = ({
                   fontWeight: 600,
                   fontSize: '16px',
                   color: '#222222'
-                }}>{formatSalaryRange(localSalaryRange)}</span>
+                }}>{formatSalary(localSalaryRange[0])} - {formatSalary(localSalaryRange[1])}</span>
               </div>
               <Slider
-                min={50}
-                max={100}
+                min={0}
+                max={200}
                 step={5}
                 value={localSalaryRange}
                 onChange={setLocalSalaryRange}
